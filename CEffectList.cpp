@@ -104,7 +104,7 @@ HRESULT CEffect::LoadShader(WCHAR *a_Filename, IDirect3DDevice9 *a_pDevice)
    //return failure and record error message if failure
    if(FAILED(hr))
    {  //error is in 8-bit character format, so for swprintf to use the string, %S (capital S) is used.
-      _snwprintf_s(m_ErrorMsg, MAX_ERROR_MSG, MAX_ERROR_MSG, L"Shader Compile Error: %S.", errorBuffer->GetBufferPointer() );
+      _snwprintf_s(m_ErrorMsg, MAX_ERROR_MSG, MAX_ERROR_MSG, L"Shader Compile Error: %s.", (WCHAR*) errorBuffer->GetBufferPointer() );
       errorBuffer->Release();
       return hr;
    }
@@ -188,7 +188,7 @@ HRESULT CEffect::LoadShaderFromResource(uint32 a_ResourceID, IDirect3DDevice9 *a
    {  //error is in 8-bit character format, so for swprintf to use the string, %S (capital S) is used.
       if(errorBuffer != NULL)
       {
-         _snwprintf_s(m_ErrorMsg, MAX_ERROR_MSG, MAX_ERROR_MSG, L"Shader Compile Error: %S.", errorBuffer->GetBufferPointer() );
+         _snwprintf_s(m_ErrorMsg, MAX_ERROR_MSG, MAX_ERROR_MSG, L"Shader Compile Error: %S.", (char8*) errorBuffer->GetBufferPointer() );
       }
       else
       {

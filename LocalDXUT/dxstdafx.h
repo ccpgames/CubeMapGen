@@ -13,8 +13,6 @@
 
 #define VC_EXTRALEAN		// Exclude rarely-used stuff from Windows headers
 
-#pragma warning(disable:4996)
-
 // Works with Windows 2000 and later and Windows 98 or later
 #undef _WIN32_IE
 #undef WINVER
@@ -32,6 +30,7 @@
 #include <limits.h>      
 #include <stdio.h>
 
+
 // Enable extra D3D debugging in debug builds if using the debug DirectX runtime.  
 // This makes D3D objects work well in the debugger watch window, but slows down 
 // performance slightly.
@@ -42,7 +41,7 @@
 // Direct3D includes
 #include <d3d9.h>
 #include <d3dx9.h>
-#include <dxerr9.h>
+#include <dxerr.h>
 
 #include <strsafe.h>
 

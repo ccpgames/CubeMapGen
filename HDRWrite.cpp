@@ -42,7 +42,7 @@ static void float2rgbe(uint8 a_RGBE[4], float32 a_Red, float32 a_Green, float32 
    }
    else 
    {
-      maxChannel = frexp(maxChannel, &exponent) * 256.0f / maxChannel;
+      maxChannel = float( frexp(maxChannel, &exponent) * 256.0f / maxChannel );
       a_RGBE[0] = (uint8) (a_Red * maxChannel);
       a_RGBE[1] = (uint8) (a_Green * maxChannel);
       a_RGBE[2] = (uint8) (a_Blue * maxChannel);

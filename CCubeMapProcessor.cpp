@@ -661,8 +661,15 @@ void CCubeMapProcessor::BuildNormalizerSolidAngleCubemap(int32 a_Size, CImageSur
    //iterate over cube faces
    for(iCubeFace=0; iCubeFace<6; iCubeFace++)
    {
-      a_Surface[iCubeFace].Clear();
-      a_Surface[iCubeFace].Init(a_Size, a_Size, 4);  //First three channels for norm cube, and last channel for solid angle
+	   if( a_Surface[iCubeFace].m_Width != a_Size || a_Surface[iCubeFace].m_Height != a_Size || a_Surface[iCubeFace].m_NumChannels != 4 || !a_Surface[iCubeFace].m_ImgData )
+	   {
+		   a_Surface[iCubeFace].Clear();
+		   a_Surface[iCubeFace].Init( a_Size, a_Size, 4 );  //First three channels for norm cube, and last channel for solid angle
+	   }
+	   else
+	   {
+		   continue;
+	   }
 
       //fast texture walk, build normalizer cube map
       CP_ITYPE *texelPtr = a_Surface[iCubeFace].m_ImgData;
@@ -1875,6 +1882,10 @@ void CCubeMapProcessor::FilterCubeMapMipChain(float32 a_BaseFilterAngle, float32
    secAttr.lpSecurityDescriptor = NULL;            //use same security descriptor as parent
    secAttr.bInheritHandle = TRUE;                  //handle is inherited by new processes spawning from this one
 
+   for( int32 iCubeFace = 0; iCubeFace<6; iCubeFace++ )
+   {
+	   m_NormCubeMap[iCubeFace].Clear();
+   }
 
    //Build filter lookup tables based on the source miplevel size
    // SL BEGIN
@@ -2001,7 +2012,12 @@ void CCubeMapProcessor::FilterCubeMapMipChain(float32 a_BaseFilterAngle, float32
       sg_ThreadFilterFace[0].m_ThreadProgress.m_CurrentFace = 0;
 	  // SL END
 
-      //Build filter lookup tables based on the source miplevel size
+	  for( int32 iCubeFace = 0; iCubeFace<6; iCubeFace++ )
+	  {
+		  m_NormCubeMap[iCubeFace].Clear();
+	  }
+
+	  //Build filter lookup tables based on the source miplevel size
 	  // SL BEGIN
       PrecomputeFilterLookupTables(a_FilterType, m_OutputSurface[i][0].m_Width, coneAngle, a_MCO.FixupType);
 	  // SL END
@@ -2044,7 +2060,6 @@ void CCubeMapProcessor::PrecomputeFilterLookupTables(uint32 a_FilterType, int32 
 // SL END
 {
     float32 srcTexelAngle;
-    int32   iCubeFace;
         
     //angle about center tap that defines filter cone
     float32 filterAngle;
@@ -2069,12 +2084,6 @@ void CCubeMapProcessor::PrecomputeFilterLookupTables(uint32 a_FilterType, int32 
 
     //build lookup table for tap weights based on angle between current tap and center tap
     BuildAngleWeightLUT(a_SrcCubeMapWidth * 2, a_FilterType, filterAngle);
-
-    //clear pre-existing normalizer cube map
-    for(iCubeFace=0; iCubeFace<6; iCubeFace++)
-    {
-        m_NormCubeMap[iCubeFace].Clear();            
-    }
 
     //Normalized vectors per cubeface and per-texel solid angle 
 	// SL BEGIN
@@ -3036,13 +3045,6 @@ void CCubeMapProcessor::SHFilterCubeMap(bool8 a_bUseSolidAngleWeighting, int32 a
 
 	//Second step - Generate cubemap from SH coefficient
 
-	// regenerate normalization cubemap for the destination cubemap
-	//clear pre-existing normalizer cube map
-	for(int32 iCubeFace=0; iCubeFace<6; iCubeFace++)
-	{
-		m_NormCubeMap[iCubeFace].Clear();            
-	}
-
 	//Normalized vectors per cubeface and per-texel solid angle 
 	BuildNormalizerSolidAngleCubemap(DstCubeImage->m_Width, m_NormCubeMap, a_FixupType);
 
@@ -3114,6 +3116,11 @@ void CCubeMapProcessor::FilterCubeMapMipChainMultithread(float32 a_BaseFilterAng
 	float32 specularPower = RefSpecularPower;
 	int32 Num = m_NumMipLevels; // Note that we need to filter the first level before generating mipmap
 								// So LevelIndex == 0 is base filtering hen LevelIndex > 0 is mipmap generation
+
+	for( int32 iCubeFace = 0; iCubeFace<6; iCubeFace++ )
+	{
+		m_NormCubeMap[iCubeFace].Clear();
+	}
 
 	for(int32 LevelIndex = 0; LevelIndex < Num; LevelIndex++)
 	{
